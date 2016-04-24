@@ -18,13 +18,13 @@ def main(argv):
     parser.add_option('-o', '--output_dir', action='store', type='string', dest='output_dir', default='test_data')
     parser.add_option('-s', '--source', action='store', type='string', dest='source_file', default=None)
     parser.add_option('-g', '--grader', action='store', type='string', dest='grader', default=None)
-    parser.add_option('-t', '--timeout', action='store', type='float', dest='timeout', default=None)
+    parser.add_option('-t', '--timeout', action='store', type='float', dest='timeout', default=2)
 
     (opts, args) = parser.parse_args(argv)
     source, dir_in, dir_out, grader = opts.source_file, opts.input_dir, opts.output_dir, opts.grader
     print (source, dir_in, dir_out, grader)
     global timeout_seconds
-    timeout_seconds = opts.timeout or 2 #default value 2
+    timeout_seconds = opts.timeout
     if source is None or \
             not os.path.isfile(source) or \
             not os.path.isdir(dir_in) or \
