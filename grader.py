@@ -3,6 +3,7 @@
 from optparse import OptionParser
 import sys
 import os
+import time
 from subprocess import STDOUT, check_output as qx
 
 
@@ -11,17 +12,19 @@ grader_file = 'Grader'
 output_user_file = 'output_user.txt'
 compile_command = '/usr/bin/g++ -DEVAL -static -O2 -std=c++0x -o ' # + source_file
 
-
 def main(argv):
     parser = OptionParser()
     parser.add_option('-i', '--input_dir', action='store', type='string', dest='input_dir', default='test_data')
     parser.add_option('-o', '--output_dir', action='store', type='string', dest='output_dir', default='test_data')
     parser.add_option('-s', '--source', action='store', type='string', dest='source_file', default=None)
     parser.add_option('-g', '--grader', action='store', type='string', dest='grader', default=None)
+    parser.add_option('-t', '--timeout', action='store', type='float', dest='timeout', default=None)
 
     (opts, args) = parser.parse_args(argv)
     source, dir_in, dir_out, grader = opts.source_file, opts.input_dir, opts.output_dir, opts.grader
     print (source, dir_in, dir_out, grader)
+    global timeout_seconds
+    timeout_seconds = opts.timeout or 2 #default value 2
     if source is None or \
             not os.path.isfile(source) or \
             not os.path.isdir(dir_in) or \
@@ -99,8 +102,13 @@ def score_grader(input_file):
                     '1' in output_grader or 'OK' in output_grader or
                     'ok' in output_grader or 'Ok' in output_grader)
 
-def execute_once(command, timeout_seconds = 2):
-    return os.popen(command).read()
+def execute_once(command):
+    command = "timeout "+ str(timeout_seconds)+ "s " + command
+    start_time = time.clock()
+    res = os.popen(command).read()
+    if(time.clock()-start_time >= timeout_seconds):
+        return "Time Limit Exceeded"
+    return res
     #return qx(command, stderr=STDOUT, timeout=timeout_seconds)
 
 
